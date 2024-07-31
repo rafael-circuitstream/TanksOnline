@@ -1,25 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class PlayerShooting : MonoBehaviour
+using Unity.Netcode;
+public class PlayerShooting : NetworkBehaviour
 {
     [SerializeField] private float shootingStrength;
-    [SerializeField] private GameObject bullet;
+    [SerializeField] private NetworkBullet bullet;
     [SerializeField] private Transform shootingPoint;
 
     private void Update()
     {
+        if (!IsOwner) return;
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            ShootBullet();
+            ShootBulletRpc();
         }
     }
 
-    private void ShootBullet()
+    [Rpc(SendTo.Server)]
+    private void ShootBulletRpc(RpcParams param = default)
     {
-        GameObject bulletClone = Instantiate(bullet, shootingPoint.position, shootingPoint.rotation);
-        bulletClone.GetComponent<Rigidbody>().AddForce(bulletClone.transform.forward * shootingStrength, ForceMode.VelocityChange);
-        Destroy(bulletClone, 3f);
+        NetworkBullet bulletClone = Instantiate(bullet, shootingPoint.position, shootingPoint.rotation);
+        bulletClone.NetworkObject.Spawn();
+        bulletClone.ShootBullet(shootingStrength, param.Receive.SenderClientId);
     }
 }
