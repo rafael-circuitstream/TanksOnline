@@ -16,7 +16,10 @@ public class ChatSystem : NetworkBehaviour
     {
         if(IsServer && !IsHost)
         {
-            ShowServerMessageRpc(inputField.text, OwnerClientId);
+            ShowServerMessageRpc(inputField.text, NetworkManager
+                .ConnectedClients[OwnerClientId]
+                .PlayerObject.GetComponent<PlayerInfo>()
+                .playerNickname.Value.ToString());
         }
         else
         {
@@ -33,12 +36,15 @@ public class ChatSystem : NetworkBehaviour
             msg = "I am a sore loser";
         }
 
-        ShowServerMessageRpc(msg, param.Receive.SenderClientId);
+        ShowServerMessageRpc(msg, NetworkManager
+            .ConnectedClients[param.Receive.SenderClientId]
+            .PlayerObject.GetComponent<PlayerInfo>()
+            .playerNickname.Value.ToString());
     }
 
     [Rpc(SendTo.Everyone)]
-    public void ShowServerMessageRpc(string msg, ulong senderId)
+    public void ShowServerMessageRpc(string msg, string senderName)
     {
-        serverMessage.text += "\n " + senderId + ":" + msg;
+        serverMessage.text += "\n " + senderName + ":" + msg;
     }
 }

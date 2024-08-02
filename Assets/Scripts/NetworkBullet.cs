@@ -42,7 +42,7 @@ public class NetworkBullet : NetworkBehaviour
             if(temporaryHealth && realOwnerId != temporaryHealth.OwnerClientId)
             {
                 Debug.Log(realOwnerId + " hitting tank" + temporaryHealth.OwnerClientId);
-                temporaryHealth.GetDamaged();
+                temporaryHealth.GetDamaged(realOwnerId);
             }
             NetworkObject.Despawn();
         }
